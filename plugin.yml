@@ -1,0 +1,25 @@
+name: SimpleGifts
+main: com.gmail.mikeundead.SimpleGifts
+version: 1.2.1
+depend: [Vault]
+commands:
+   gift:
+      description: Displays all commands that are available for you.
+      usage: /gift
+      
+permissions:
+  gift.*:
+    description: Gives access to all SimpleGift commands
+    children:
+      gift.single: true
+      gift.multiple: true
+      gift.money: true
+  gift.single:
+    description: Allows you to Gift one item
+    default: true
+  gift.multiple:
+    description: Allows you to Gift multiple items
+    default: true
+  gift.money:
+    description: Allows you to Gift money
+    default: true
