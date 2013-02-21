@@ -1,0 +1,3 @@
+# Set the amount of Gifts that a player is able to send per hour
+
+MaxGiftsPerHour: 5

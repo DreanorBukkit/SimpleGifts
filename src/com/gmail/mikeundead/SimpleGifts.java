@@ -7,29 +7,32 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.gmail.mikeundead.Handlers.ConfigHandler;
+import com.gmail.mikeundead.Listeners.CommandListener;
+
 public class SimpleGifts extends JavaPlugin 
 {
 	public Logger log;
-	private GiftCommand giftCommand;
+	private CommandListener giftCommand;
 	public Permission permissions;
     public Economy econ = null;
     
 	public void onEnable()
 	{
-		this.log = this.getLogger();
+		ConfigHandler configHandler = new ConfigHandler(this);
 		
-		this.giftCommand = new GiftCommand(this);
+		this.giftCommand = new CommandListener(this, configHandler);
 		this.getCommand("gift").setExecutor(giftCommand);
 		
 		this.setupPermissions();
 		this.setupEconomy();
 		
-		this.log.info("Simple Gifts has been enabled!");
+		this.getLogger().info("Simple Gifts has been enabled!");
 	}
  
 	public void onDisable()
 	{
-		this.log.info("Simple Gifts has been disabled.");
+		this.getLogger().info("Simple Gifts has been disabled.");
 	}
 	
     private boolean setupPermissions() 
