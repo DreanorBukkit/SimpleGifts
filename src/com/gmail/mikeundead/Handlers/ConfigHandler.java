@@ -22,91 +22,91 @@ public class ConfigHandler
     {
     	this.plugin = plugin;
     	this.configFile = new File(this.plugin.getDataFolder(), "config.yml");
-    	
-	    try 
+
+	    try
 	    {
 	    	this.FirstRun();
-	    } 
-	    catch (Exception e) 
+	    }
+	    catch (Exception e)
 	    {
 	        e.printStackTrace();
 	    }
-	    
+
 	    this.config = new YamlConfiguration();
 	    this.LoadYamls();
     }
-	
+
 	public int getMaxGiftsPerHour()
 	{
 		return this.maxGiftsPerHour;
 	}
-	
+
 	private void FirstRun() throws Exception
 	{
 	    if(!this.configFile.exists())
 	    {
 	        this.configFile.getParentFile().mkdirs();
-	        
+
 	        this.config = new YamlConfiguration();
-	        
+
 	        this.SaveYamls();
-	        
+
 	        this.Copy(this.plugin.getResource("config.yml"), configFile);
 	    }
 	}
 
-	private void Copy(InputStream in, File file) 
+	private void Copy(InputStream in, File file)
 	{
-	    try 
+	    try
 	    {
 	        OutputStream out = new FileOutputStream(file);
 	        byte[] buf = new byte[1024];
 	        int len;
-	        
+
 	        while((len=in.read(buf)) > 0)
 	        {
 	            out.write(buf, 0, len);
 	        }
-	        
+
 	        out.close();
 	        in.close();
-	    } 
-	    catch (Exception e) 
+	    }
+	    catch (Exception e)
 	    {
 	        e.printStackTrace();
 	    }
 	}
-	
-	private void SaveYamls() 
+
+	private void SaveYamls()
 	{
-	    try 
+	    try
 	    {
 	        this.config.save(configFile);
-	    } 
-	    catch (IOException e) 
+	    }
+	    catch (IOException e)
 	    {
 	        e.printStackTrace();
 	    }
 	}
-	
-	private void LoadYamls() 
+
+	private void LoadYamls()
 	{
-	    try 
+	    try
 	    {
 	        this.config.load(configFile);
 	        this.LoadValues();
-	    } 
-	    catch (Exception e) 
+	    }
+	    catch (Exception e)
 	    {
 	        e.printStackTrace();
 	    }
 	}
-	
-	private void LoadValues() 
+
+	private void LoadValues()
 	{
 		this.setMaxGiftsPerHour();
-	}	
-		
+	}
+
 	private void setMaxGiftsPerHour()
 	{
 		this.maxGiftsPerHour = this.config.getInt("MaxGiftsPerHour");

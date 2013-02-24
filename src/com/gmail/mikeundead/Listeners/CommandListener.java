@@ -21,26 +21,26 @@ public class CommandListener implements CommandExecutor
 
 	private SimpleGifts simpleGifts;
 	private MoneyGiftCmd handleMoneyGift;
-	private HashMap<String, Integer> giftCooldowns;
+	private HashMap<String, Integer> sendedGiftsByPlayer;
 	private ConfigHandler config;
-	
-	public CommandListener(SimpleGifts simpleGifts, ConfigHandler configHandler) 
+	private HashMap<String, Long> giftCooldown;
+
+	public CommandListener(SimpleGifts simpleGifts, ConfigHandler configHandler)
 	{
 		this.config = configHandler;
 		this.simpleGifts = simpleGifts;
 		this.handleSingleGift = new SingleGiftCmd(this.simpleGifts);
 		this.handleMultipleGifts = new MultipleGiftsCmd(this.simpleGifts);
 		this.handleMoneyGift = new MoneyGiftCmd(this.simpleGifts);
-		this.giftCooldowns = new HashMap<String, Integer>();
-
+		this.sendedGiftsByPlayer = new HashMap<String, Integer>();
+		this.giftCooldown = new HashMap<String, Long>();
 	}
 
-
-	
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) 
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
 		Player player = null;
-		if (sender instanceof Player) 
+		if (sender instanceof Player)
 		{
 			player = (Player) sender;
 	    }
@@ -51,31 +51,61 @@ public class CommandListener implements CommandExecutor
 			{
 				sender.sendMessage(ChatColor.RED + "Too many Arguments.");
 		        return true;
-			}	      
-			
-			if(this.giftCooldowns.containsKey(player.getName()) == false)
-			{
-				this.giftCooldowns.put(player.getName(), 0);
 			}
-			
-			if(this.giftCooldowns.get(player.getName()) < this.config.getMaxGiftsPerHour())
+
+			if(!this.sendedGiftsByPlayer.containsKey(player.getName()))
+			{
+				this.sendedGiftsByPlayer.put(player.getName(), 0);
+			}
+
+			this.CheckCooldown(player);
+
+			if(this.sendedGiftsByPlayer.get(player.getName()) < this.config.getMaxGiftsPerHour())
 			{
 				if(args.length == 1 && this.simpleGifts.permissions.has(player, "gift.single"))
 		        {
-		        	this.handleSingleGift.HandleNormalGift(player, args, this.giftCooldowns);
+		        	this.handleSingleGift.HandleNormalGift(player, args, this.sendedGiftsByPlayer);
 		        }
-		        
+
 		        if(args.length == 2 && this.simpleGifts.permissions.has(player, "gift.multiple"))
 		        {
-		        	this.handleMultipleGifts.HandleNormalGift(player, args, this.giftCooldowns);
+		        	this.handleMultipleGifts.HandleNormalGift(player, args, this.sendedGiftsByPlayer);
 		        }
-		        
+
 		        if(args.length == 3 && this.simpleGifts.permissions.has(player, "gift.money"))
 		        {
-		        	this.handleMoneyGift.HandleMoney(player, args, this.giftCooldowns);
+		        	this.handleMoneyGift.HandleMoney(player, args, this.sendedGiftsByPlayer);
 		        }
+			}
+			else
+			{
+				int giftPerHour = this.config.getMaxGiftsPerHour();
+				long cooldownTime = this.giftCooldown.get(player.getName());
+				long timeLeft = (cooldownTime - System.currentTimeMillis()) / 1000 / 60;
+
+				player.sendMessage(String.format(ChatColor.RED + "You have reached the limit of %s gifts per hour. You must wait %s minutes.", giftPerHour, timeLeft));
 			}
 	    }
 		return true;
+	}
+
+	private void CheckCooldown(Player player)
+	{
+		if(this.sendedGiftsByPlayer.get(player.getName()) == this.config.getMaxGiftsPerHour())
+		{
+			if(!this.giftCooldown.containsKey(player.getName()))
+			{
+				this.giftCooldown.put(player.getName(), System.currentTimeMillis() + 3600000);
+			}
+			else
+			{
+				long cooldown = this.giftCooldown.get(player.getName());
+				long currentTime = System.currentTimeMillis();
+				if(currentTime >= cooldown)
+				{
+					this.giftCooldown.remove(player.getName());
+				}
+			}
+		}
 	}
 }
