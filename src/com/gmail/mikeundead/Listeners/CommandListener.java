@@ -47,6 +47,11 @@ public class CommandListener implements CommandExecutor
 
 		if (cmd.getName().equalsIgnoreCase("gift"))
 		{
+		    if (args.length == 0)
+		    {
+		    	this.HandleHelpList(player);
+		    	return true;
+		    }
 			if(args.length > 3)
 			{
 				sender.sendMessage(ChatColor.RED + "Too many Arguments.");
@@ -87,6 +92,14 @@ public class CommandListener implements CommandExecutor
 			}
 	    }
 		return true;
+	}
+
+	private void HandleHelpList(CommandSender sender)
+	{
+		sender.sendMessage(ChatColor.YELLOW + "Simple Gifts - commands");
+		sender.sendMessage(ChatColor.AQUA + "/gift <Playername>" + ChatColor.WHITE + "- Send the item that is currently in your Hand to the Player.");
+		sender.sendMessage(ChatColor.AQUA + "/gift <amount> <Playername>" + ChatColor.WHITE + "- Send x items that are currently in your Hand to the Player.");
+		sender.sendMessage(ChatColor.AQUA + "/gift money <amount> <Playername>" + ChatColor.WHITE + "- Send money to the Player.");
 	}
 
 	private void CheckCooldown(Player player)

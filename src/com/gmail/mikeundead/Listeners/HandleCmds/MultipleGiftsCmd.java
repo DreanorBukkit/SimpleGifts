@@ -76,33 +76,33 @@ public class MultipleGiftsCmd
 				Material itemInHand = itemStack.getType();
 				
 				ItemStack is;
-				int realItemNumber = itemStack.getAmount();
+				int itemStackAmount = itemStack.getAmount();
 				
 				if(inventory.getSize() > 1)
 				{
 					if(numberOfItems >= itemStack.getAmount())
 					{
 						is = new ItemStack(itemStack.getType(), itemStack.getAmount());
-						realItemNumber = itemStack.getAmount();
+						itemStackAmount = itemStack.getAmount();
 					}
 					else
 					{
 						is = new ItemStack(itemStack.getType(), numberOfItems);	
-						realItemNumber = numberOfItems;
+						itemStackAmount = numberOfItems;
 					}
 					
 					inventory.addItem(is);
 					senderInventory.remove(is);
 			
-					otherPlayer.sendMessage(ChatColor.GREEN + player.getName() + " send you " + realItemNumber + " " + itemInHand.name());
-					player.sendMessage(ChatColor.GREEN + "You send " + otherPlayer.getName() + " " + realItemNumber + " " + itemInHand.name());
+					otherPlayer.sendMessage(ChatColor.GREEN + player.getName() + " send you " + itemStackAmount + " " + itemInHand.name());
+					player.sendMessage(ChatColor.GREEN + "You send " + otherPlayer.getName() + " " + itemStackAmount + " " + itemInHand.name());
 					
 					int cd = giftCooldowns.get(player.getName()) +1;
 					giftCooldowns.put(player.getName(), cd);
 				}
 				else
 				{
-					otherPlayer.sendMessage(ChatColor.RED + player.getName() + " tried to send you " + realItemNumber + " " + itemInHand.name() + " but your inventory is full.");
+					otherPlayer.sendMessage(ChatColor.RED + player.getName() + " tried to send you " + itemStackAmount + " " + itemInHand.name() + " but your inventory is full.");
 					player.sendMessage(ChatColor.RED + otherPlayer.getName() + " inventory is full!");
 				}
 			}
