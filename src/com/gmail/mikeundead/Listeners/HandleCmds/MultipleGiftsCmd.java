@@ -1,22 +1,20 @@
 package com.gmail.mikeundead.Listeners.HandleCmds;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import com.gmail.mikeundead.SimpleGifts;
 
-public class MultipleGiftsCmd 
-{	
+public class MultipleGiftsCmd
+{
 	private SimpleGifts simpleGifts;
-	
-	public MultipleGiftsCmd(SimpleGifts simpleGifts) 
+
+	public MultipleGiftsCmd(SimpleGifts simpleGifts)
 	{
 		this.simpleGifts = simpleGifts;
 	}
@@ -24,7 +22,7 @@ public class MultipleGiftsCmd
 	public void HandleNormalGift(Player player, String[] args, HashMap<String, Integer> giftCooldowns)
 	{
 		int numberOfItems = 0;
-		
+
 		try
 		{
 			numberOfItems = Integer.parseInt(args[0]);
@@ -34,9 +32,9 @@ public class MultipleGiftsCmd
 			player.sendMessage(ChatColor.RED + "Wrong usage. Type /gift <amount> <Playername>");
 			return;
 		}
-		
+
 		ItemStack itemStack = player.getItemInHand().clone();
-		
+
 		if(itemStack.getType() == Material.AIR)
 		{
 			player.sendMessage(ChatColor.RED + "You dont have a Item in your Hand.");
@@ -54,62 +52,71 @@ public class MultipleGiftsCmd
 			player.sendMessage(ChatColor.RED + "You can`t send 0 items.");
 			return;
 		}
-		
-		Map<Enchantment, Integer> itemInHandEnchant = player.getItemInHand().getEnchantments();	
-		
-		itemStack.addEnchantments(itemInHandEnchant);
-		
+
 		PlayerInventory senderInventory = player.getInventory();
-		
+
 		Player otherPlayer = (this.simpleGifts.getServer().getPlayer(args[1]));
-		
+
 		if(otherPlayer == null)
 		{
 			player.sendMessage(ChatColor.RED + args[1] + " is not Online.");
 		}
 		else
-		{			
-			if(!otherPlayer.getName().equalsIgnoreCase(player.getName()))
+		{
+			this.SendItemToPlayer(itemStack, player, numberOfItems, giftCooldowns, senderInventory, otherPlayer);
+		}
+	}
+
+	private void SendItemToPlayer(ItemStack itemStack, Player player, int numberOfItems, HashMap<String, Integer> giftCooldowns, PlayerInventory senderInventory, Player otherPlayer)
+	{
+		if(!otherPlayer.getName().equalsIgnoreCase(player.getName()))
+		{
+			PlayerInventory inventory = otherPlayer.getInventory();
+
+			Material itemInHand = itemStack.getType();
+			ItemStack is;
+			int itemStackAmount = itemStack.getAmount();
+
+			if(inventory.getSize() > 1)
 			{
-				PlayerInventory inventory = otherPlayer.getInventory();
-				
-				Material itemInHand = itemStack.getType();
-				
-				ItemStack is;
-				int itemStackAmount = itemStack.getAmount();
-				
-				if(inventory.getSize() > 1)
+				if(numberOfItems >= itemStack.getAmount())
 				{
-					if(numberOfItems >= itemStack.getAmount())
-					{
-						is = new ItemStack(itemStack.getType(), itemStack.getAmount());
-						itemStackAmount = itemStack.getAmount();
-					}
-					else
-					{
-						is = new ItemStack(itemStack.getType(), numberOfItems);	
-						itemStackAmount = numberOfItems;
-					}
-					
-					inventory.addItem(is);
-					senderInventory.remove(is);
-			
-					otherPlayer.sendMessage(ChatColor.GREEN + player.getName() + " send you " + itemStackAmount + " " + itemInHand.name());
-					player.sendMessage(ChatColor.GREEN + "You send " + otherPlayer.getName() + " " + itemStackAmount + " " + itemInHand.name());
-					
-					int cd = giftCooldowns.get(player.getName()) +1;
-					giftCooldowns.put(player.getName(), cd);
+					is = new ItemStack(itemStack.getType(), itemStack.getAmount());
+					itemStackAmount = itemStack.getAmount();
 				}
 				else
 				{
-					otherPlayer.sendMessage(ChatColor.RED + player.getName() + " tried to send you " + itemStackAmount + " " + itemInHand.name() + " but your inventory is full.");
-					player.sendMessage(ChatColor.RED + otherPlayer.getName() + " inventory is full!");
+					is = new ItemStack(itemStack.getType(), numberOfItems);
+					itemStackAmount = numberOfItems;
 				}
+
+				inventory.addItem(is);
+
+
+				if(senderInventory.getItemInHand().getAmount() > itemStackAmount)
+				{
+					senderInventory.getItemInHand().setAmount(senderInventory.getItemInHand().getAmount() -itemStackAmount);
+				}
+				else
+				{
+					senderInventory.setItemInHand(new ItemStack(Material.AIR));
+				}
+
+				otherPlayer.sendMessage(ChatColor.GREEN + player.getName() + " send you " + itemStackAmount + " " + itemInHand.name());
+				player.sendMessage(ChatColor.GREEN + "You send " + otherPlayer.getName() + " " + itemStackAmount + " " + itemInHand.name());
+
+				int cd = giftCooldowns.get(player.getName()) +1;
+				giftCooldowns.put(player.getName(), cd);
 			}
 			else
 			{
-				player.sendMessage(ChatColor.RED + "You cant send yourself a gift.");
+				otherPlayer.sendMessage(ChatColor.RED + player.getName() + " tried to send you " + itemStackAmount + " " + itemInHand.name() + " but your inventory is full.");
+				player.sendMessage(ChatColor.RED + otherPlayer.getName() + " inventory is full!");
 			}
+		}
+		else
+		{
+			player.sendMessage(ChatColor.RED + "You cant send yourself a gift.");
 		}
 	}
 }

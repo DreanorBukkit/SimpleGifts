@@ -6,6 +6,9 @@ commands:
    gift:
       description: Displays all commands that are available for you.
       usage: /gift
+   giftinfo:
+      description: Displays your current status.
+      usage: /giftinfo
       
 permissions:
   gift.*:

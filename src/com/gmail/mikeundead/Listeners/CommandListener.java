@@ -91,33 +91,67 @@ public class CommandListener implements CommandExecutor
 				player.sendMessage(String.format(ChatColor.RED + "You have reached the limit of %s gifts per hour. You must wait %s minutes.", giftPerHour, timeLeft));
 			}
 	    }
+
+		if(cmd.getName().equalsIgnoreCase("giftinfo"))
+		{
+			if(args.length == 0)
+			{
+				this.HandleInfoCmd(player);
+				return true;
+			}
+			else
+			{
+				player.sendMessage(ChatColor.RED + "Wrong usage. Use /giftinfo");
+			}
+		}
 		return true;
+	}
+
+	private void HandleInfoCmd(Player player)
+	{
+
+		if(this.giftCooldown.containsKey(player.getName()))
+		{
+			Long cooldown = this.giftCooldown.get(player.getName());
+			int sendedGifts = this.sendedGiftsByPlayer.get(player.getName());
+			if(sendedGifts != this.config.getMaxGiftsPerHour())
+			{
+				player.sendMessage(String.format(ChatColor.GREEN + "You have sended %s gift(s) in the last 60min.", sendedGifts));
+			}
+			else
+			{
+				player.sendMessage(String.format(ChatColor.GREEN + "You have sended %s gifts. You have to wait: %s min", sendedGifts, (cooldown - System.currentTimeMillis()) / 1000 / 60));
+			}
+		}
+		else
+		{
+			player.sendMessage(String.format(ChatColor.GREEN + "You haven't send any gifts yet."));
+		}
 	}
 
 	private void HandleHelpList(CommandSender sender)
 	{
 		sender.sendMessage(ChatColor.YELLOW + "Simple Gifts - commands");
-		sender.sendMessage(ChatColor.AQUA + "/gift <Playername>" + ChatColor.WHITE + "- Send the item that is currently in your Hand to the Player.");
-		sender.sendMessage(ChatColor.AQUA + "/gift <amount> <Playername>" + ChatColor.WHITE + "- Send x items that are currently in your Hand to the Player.");
-		sender.sendMessage(ChatColor.AQUA + "/gift money <amount> <Playername>" + ChatColor.WHITE + "- Send money to the Player.");
+		sender.sendMessage(ChatColor.AQUA + "/gift <Playername>" + ChatColor.WHITE + " - Sends the item that is currently held in your Hand to a Player.");
+		sender.sendMessage(ChatColor.AQUA + "/gift <amount> <Playername>" + ChatColor.WHITE + " - Sends a specific amount of items that are currently held in your Hand to a Player.");
+		sender.sendMessage(ChatColor.AQUA + "/gift money <amount> <Playername>" + ChatColor.WHITE + " - Sends a specific amount of money to a Player");
+		sender.sendMessage(ChatColor.AQUA + "/giftinfo" + ChatColor.WHITE + " -  Displays your current cooldown time for gifting or the amount of gifts that you are able to send until you hit the cooldown");
 	}
 
 	private void CheckCooldown(Player player)
 	{
-		if(this.sendedGiftsByPlayer.get(player.getName()) == this.config.getMaxGiftsPerHour())
+		if(!this.giftCooldown.containsKey(player.getName()))
 		{
-			if(!this.giftCooldown.containsKey(player.getName()))
+			this.giftCooldown.put(player.getName(), System.currentTimeMillis() + 3600000);
+		}
+		else
+		{
+			long cooldown = this.giftCooldown.get(player.getName());
+			long currentTime = System.currentTimeMillis();
+			if(currentTime >= cooldown)
 			{
-				this.giftCooldown.put(player.getName(), System.currentTimeMillis() + 3600000);
-			}
-			else
-			{
-				long cooldown = this.giftCooldown.get(player.getName());
-				long currentTime = System.currentTimeMillis();
-				if(currentTime >= cooldown)
-				{
-					this.giftCooldown.remove(player.getName());
-				}
+				this.giftCooldown.remove(player.getName());
+				this.sendedGiftsByPlayer.put(player.getName(), 0);
 			}
 		}
 	}
