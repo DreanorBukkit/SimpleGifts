@@ -6,7 +6,7 @@ You will be able to send items that are currently in your hand to the player of 
 
 
 ## Latest update
-* v1.3.0 Compatible with: RB 1.4.7-R1.0
+v1.3.0 Compatible with: RB 1.4.7-R1.0
 
 
 ## Features
@@ -23,4 +23,23 @@ Item names and enchantments will be also transfered
 
 ## Setup
 This plugin depends on [Vault](https://dev.bukkit.org/bukkit-plugins/vault/) for sending money.
-Check the permissions here.
+
+Check the permissions below:
+```yaml
+permissions:
+  gift.*:
+    description: Gives access to all SimpleGift commands
+    children:
+      gift.single: true
+      gift.multiple: true
+      gift.money: true
+  gift.single:
+    description: Allows you to Gift one item
+    default: true
+  gift.multiple:
+    description: Allows you to Gift multiple items
+    default: true
+  gift.money:
+    description: Allows you to Gift money
+    default: true
+```
